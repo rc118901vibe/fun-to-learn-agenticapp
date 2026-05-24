@@ -9,7 +9,7 @@ from datetime import datetime
 # Your email settings
 SENDER_EMAIL = "tamalika.chakraborty@gmail.com"
 SENDER_PASSWORD = "koqm ajyj fqap ntft"
-RECEIVER_EMAIL = "rc118901@gmail.com"
+RECEIVER_EMAIL = "tamalika.chakraborty@capgemini.com"
 
 def monitor_errors():
     print(f"[{datetime.now()}] Monitoring errors...")
@@ -88,7 +88,8 @@ def send_alert_email(high_priority_errors):
 monitor_errors()
 
 # Then run every 5 minutes
-schedule.every(5).minutes.do(monitor_errors)
+#schedule.every(5).minutes.do(monitor_errors)
+schedule.every().day.at("21:10").do(monitor_errors)
 
 print("Monitoring agent running... Press Ctrl+C to stop")
 while True:

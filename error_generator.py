@@ -49,7 +49,8 @@ def generate_errors():
 generate_errors()
 
 # Then run every 5 minutes
-schedule.every(5).minutes.do(generate_errors)
+#schedule.every(5).minutes.do(generate_errors)
+schedule.every().day.at("21:05").do(generate_errors)
 
 print("Error generator running... Press Ctrl+C to stop")
 while True:

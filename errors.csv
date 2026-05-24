@@ -4,3 +4,18 @@ date,emp_id,long_message,short_message
 2026-05-24 20:33:12,EMP324414,Data mismatch found for employee EMP324414 in the system,Data Error
 2026-05-24 20:33:12,EMP480717,Data mismatch found for employee EMP480717 in the system,Data Error
 2026-05-24 20:33:12,EMP386249,Access denied when processing employee EMP386249 in the system,Access Error
+2026-05-24 20:38:12,EMP454847,Job Title Mismatch detected for employee EMP454847 in the system,Job Title Error
+2026-05-24 20:38:12,EMP885616,Access denied when processing employee EMP885616 in the system,Access Error
+2026-05-24 20:38:12,EMP697807,Configuration issue detected for employee EMP697807 in the system,Config Error
+2026-05-24 20:38:12,EMP297125,Cascade Profile sync failed for employee EMP297125 in the system,Cascade Profile Error
+2026-05-24 20:38:12,EMP593862,Access denied when processing employee EMP593862 in the system,Access Error
+2026-05-24 20:38:12,EMP824615,Access denied when processing employee EMP824615 in the system,Access Error
+2026-05-24 20:43:13,EMP707847,Job Title Mismatch detected for employee EMP707847 in the system,Job Title Error
+2026-05-24 20:43:13,EMP175563,Cascade Profile sync failed for employee EMP175563 in the system,Cascade Profile Error
+2026-05-24 20:43:13,EMP774740,Job Title Mismatch detected for employee EMP774740 in the system,Job Title Error
+2026-05-24 20:48:13,EMP495411,Configuration issue detected for employee EMP495411 in the system,Config Error
+2026-05-24 20:48:13,EMP963325,Critical system failure detected for employee EMP963325 in the system,System Error
+2026-05-24 20:48:13,EMP646042,Job Title Mismatch detected for employee EMP646042 in the system,Job Title Error
+2026-05-24 20:53:13,EMP840441,Cascade Profile sync failed for employee EMP840441 in the system,Cascade Profile Error
+2026-05-24 20:53:13,EMP966508,Data mismatch found for employee EMP966508 in the system,Data Error
+2026-05-24 20:53:13,EMP764315,Cascade Profile sync failed for employee EMP764315 in the system,Cascade Profile Error
