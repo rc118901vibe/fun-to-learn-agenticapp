@@ -19,3 +19,11 @@ date,emp_id,long_message,short_message
 2026-05-24 20:53:13,EMP840441,Cascade Profile sync failed for employee EMP840441 in the system,Cascade Profile Error
 2026-05-24 20:53:13,EMP966508,Data mismatch found for employee EMP966508 in the system,Data Error
 2026-05-24 20:53:13,EMP764315,Cascade Profile sync failed for employee EMP764315 in the system,Cascade Profile Error
+2026-05-24 20:56:45,EMP196488,Data mismatch found for employee EMP196488 in the system,Data Error
+2026-05-24 20:56:45,EMP919328,Critical system failure detected for employee EMP919328 in the system,System Error
+2026-05-24 20:56:45,EMP955591,Job Title Mismatch detected for employee EMP955591 in the system,Job Title Error
+2026-05-24 21:05:00,EMP353820,Access denied when processing employee EMP353820 in the system,Access Error
+2026-05-24 21:05:00,EMP961415,Critical system failure detected for employee EMP961415 in the system,System Error
+2026-05-24 21:05:00,EMP738542,Configuration issue detected for employee EMP738542 in the system,Config Error
+2026-05-24 21:05:00,EMP401011,Cascade Profile sync failed for employee EMP401011 in the system,Cascade Profile Error
+2026-05-24 21:05:00,EMP232752,Cascade Profile sync failed for employee EMP232752 in the system,Cascade Profile Error

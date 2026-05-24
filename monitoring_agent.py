@@ -2,6 +2,8 @@ import pandas as pd
 import smtplib
 import schedule
 import time
+import requests
+import json
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
@@ -11,75 +13,143 @@ SENDER_EMAIL = "tamalika.chakraborty@gmail.com"
 SENDER_PASSWORD = "koqm ajyj fqap ntft"
 RECEIVER_EMAIL = "tamalika.chakraborty@capgemini.com"
 
-def monitor_errors():
-    print(f"[{datetime.now()}] Monitoring errors...")
+def ask_gemma(error_row):
+    """Ask Gemma to reason about the error and decide priority"""
+    
+    prompt = f"""You are an expert IT monitoring agent. Analyze this error and decide its priority.
+
+Error Details:
+- Date: {error_row['date']}
+- Employee ID: {error_row['emp_id']}
+- Error Type: {error_row['short_message']}
+- Full Message: {error_row['long_message']}
+
+Based on the error type and message, decide:
+1. Priority: CRITICAL, HIGH, MEDIUM or LOW
+2. Should we send an email alert? YES or NO
+3. Brief reason for your decision (1 sentence)
+
+Respond in this exact JSON format:
+{{
+  "priority": "HIGH",
+  "send_email": "YES",
+  "reason": "Your reason here"
+}}
+
+Only respond with the JSON, nothing else."""
 
     try:
+        response = requests.post(
+            "http://localhost:11434/api/generate",
+            json={
+                "model": "gemma3",
+                "prompt": prompt,
+                "stream": False
+            }
+        )
+        
+        result = response.json()
+        raw = result["response"].strip()
+        
+        # Clean up response
+        if "```json" in raw:
+            raw = raw.split("```json")[1].split("```")[0].strip()
+        elif "```" in raw:
+            raw = raw.split("```")[1].split("```")[0].strip()
+            
+        decision = json.loads(raw)
+        return decision
+        
+    except Exception as e:
+        print(f"Gemma error: {e}")
+        return {
+            "priority": "MEDIUM",
+            "send_email": "NO",
+            "reason": "Could not analyze error"
+        }
+
+def monitor_errors():
+    print(f"\n[{datetime.now()}] 🔍 Monitoring agent running...")
+    
+    try:
         errors_df = pd.read_csv("errors.csv")
-        categories_df = pd.read_csv("categories.csv")
     except Exception as e:
         print(f"Error reading files: {e}")
         return
 
-    # Merge errors with categories
-    merged = errors_df.merge(
-        categories_df,
-        left_on="short_message",
-        right_on="error_type",
-        how="left"
-    )
-
-    # Find high priority errors
-    high_priority = merged[merged["priority"] == "Real-Prio High"]
-
-    if len(high_priority) > 0:
-        print(f"Found {len(high_priority)} high priority errors! Sending email...")
-        send_alert_email(high_priority)
+    # Only process recent errors (last 10)
+    recent_errors = errors_df.tail(10)
+    
+    high_priority_errors = []
+    
+    print(f"Asking Gemma to analyze {len(recent_errors)} errors...")
+    
+    for _, row in recent_errors.iterrows():
+        print(f"\n  Analyzing error: {row['short_message']} for {row['emp_id']}")
+        
+        # Ask Gemma to reason about this error
+        decision = ask_gemma(row)
+        
+        print(f"  Gemma decision: Priority={decision['priority']}, Email={decision['send_email']}")
+        print(f"  Reason: {decision['reason']}")
+        
+        if decision["send_email"] == "YES":
+            row_dict = row.to_dict()
+            row_dict["gemma_priority"] = decision["priority"]
+            row_dict["gemma_reason"] = decision["reason"]
+            high_priority_errors.append(row_dict)
+    
+    if high_priority_errors:
+        print(f"\n🚨 Gemma flagged {len(high_priority_errors)} errors for email alert!")
+        send_alert_email(high_priority_errors)
     else:
-        print("No high priority errors found.")
+        print("\n✅ Gemma found no critical errors requiring email alert.")
 
 def send_alert_email(high_priority_errors):
     try:
-        # Build email body
         body = f"""
-        <h2>🚨 High Priority Errors Detected!</h2>
-        <p>The following high priority errors were found:</p>
-        <table border="1" cellpadding="5">
-            <tr>
+        <h2>🚨 AI-Powered Error Alert!</h2>
+        <p>Gemma AI has analyzed your errors and flagged the following as critical:</p>
+        <table border="1" cellpadding="5" style="border-collapse:collapse">
+            <tr style="background-color:#ff4444;color:white">
                 <th>Date</th>
                 <th>Employee ID</th>
                 <th>Error Type</th>
                 <th>Message</th>
-                <th>Priority</th>
+                <th>AI Priority</th>
+                <th>AI Reason</th>
             </tr>
         """
 
-        for _, row in high_priority_errors.iterrows():
+        for row in high_priority_errors:
             body += f"""
             <tr>
                 <td>{row['date']}</td>
                 <td>{row['emp_id']}</td>
-                <td>{row['error_type']}</td>
+                <td>{row['short_message']}</td>
                 <td>{row['long_message']}</td>
-                <td style="color:red"><b>{row['priority']}</b></td>
+                <td style="color:red"><b>{row['gemma_priority']}</b></td>
+                <td><i>{row['gemma_reason']}</i></td>
             </tr>
             """
 
-        body += "</table>"
+        body += """
+        </table>
+        <br>
+        <p style="color:grey;font-size:12px">This alert was generated by Gemma AI reasoning engine</p>
+        """
 
-        # Create email
         msg = MIMEMultipart("alternative")
-        msg["Subject"] = f"🚨 Alert: {len(high_priority_errors)} High Priority Errors Detected"
+        msg["Subject"] = f"🤖 AI Alert: {len(high_priority_errors)} Critical Errors Detected"
         msg["From"] = SENDER_EMAIL
         msg["To"] = RECEIVER_EMAIL
         msg.attach(MIMEText(body, "html"))
 
-        # Send email
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
             server.login(SENDER_EMAIL, SENDER_PASSWORD)
             server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, msg.as_string())
 
-        print(f"[{datetime.now()}] Alert email sent successfully!")
+        print(f"[{datetime.now()}] ✅ AI alert email sent successfully!")
 
     except Exception as e:
         print(f"Error sending email: {e}")
@@ -87,11 +157,11 @@ def send_alert_email(high_priority_errors):
 # Run immediately once
 monitor_errors()
 
-# Then run every 5 minutes
-#schedule.every(5).minutes.do(monitor_errors)
-schedule.every().day.at("21:10").do(monitor_errors)
+# Run every 240 minutes - Gemma decides if email is needed
+schedule.every(240).minutes.do(monitor_errors)
 
-print("Monitoring agent running... Press Ctrl+C to stop")
+print("\nMonitoring agent running... Press Ctrl+C to stop")
 while True:
     schedule.run_pending()
     time.sleep(1)
+
