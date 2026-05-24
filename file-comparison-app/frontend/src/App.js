@@ -23,6 +23,16 @@ function App() {
     }
   };
 
+  const handleDownload = () => {
+    const blob = new Blob([diffHTML], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'diff-result.html';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
       <h1>File Comparison App</h1>
@@ -39,10 +49,27 @@ function App() {
       </form>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {diffHTML && (
-        <div
-          style={{ marginTop: '20px', border: '1px solid #ccc', padding: '10px' }}
-          dangerouslySetInnerHTML={{ __html: diffHTML }}
-        />
+        <div>
+          <button
+            onClick={handleDownload}
+            style={{
+              marginTop: '20px',
+              padding: '10px 20px',
+              backgroundColor: '#4CAF50',
+              color: 'white',
+              border: 'none',
+              borderRadius: '5px',
+              cursor: 'pointer',
+              fontSize: '16px'
+            }}
+          >
+            Download Diff Result
+          </button>
+          <div
+            style={{ marginTop: '20px', border: '1px solid #ccc', padding: '10px' }}
+            dangerouslySetInnerHTML={{ __html: diffHTML }}
+          />
+        </div>
       )}
     </div>
   );
