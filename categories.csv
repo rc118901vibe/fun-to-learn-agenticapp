@@ -1,0 +1,7 @@
+error_type,job_title,priority
+Job Title Error,Job Title Mismatch,Real-Prio High
+Cascade Profile Error,Cascade Profile,Warning
+System Error,System Failure,Real-Prio High
+Access Error,Access Denied,Warning
+Data Error,Data Mismatch,Real-Prio High
+Config Error,Configuration Issue,Warning
